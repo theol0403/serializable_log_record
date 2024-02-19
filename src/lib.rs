@@ -69,6 +69,7 @@ pub struct SerializableLogRecord {
     pub module_path: Option<String>,
     pub file: Option<String>,
     pub line: Option<u32>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     __private: PhantomData<()>,
 }
 
