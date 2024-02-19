@@ -23,6 +23,7 @@
 //! let serializable_record = SerializableLogRecord::from(&record);
 //! ```
 //! `Serde`'s `Serialize` and `Deserialize` traits are implemented for `SerializableLogRecord` if the `serde` feature is enabled.
+//! The feature `bincode2` is also available which implements `bincode::Encode` and `bincode::Decode` from bincode version 2 for `SerializableLogRecord`.
 //!
 //! To convert a `SerializableLogRecord` back into a `log::Record` use the `into_log_record` macro. The result of this macro has to be passed
 //! directly into a call to the `log` method of any `log::Log` implementation. It cannot be stored in an intermediate variable or alike due to
@@ -48,7 +49,7 @@
 //! ```
 //!
 
-use std::{marker::PhantomData, str::FromStr};
+use std::str::FromStr;
 
 use log::{Level, Record};
 
@@ -62,6 +63,8 @@ use log::{Level, Record};
 /// convert a `SerializedRecord` into a `log::Record`.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "bincode2", derive(bincode::Encode, bincode::Decode))]
+#[non_exhaustive]
 pub struct SerializableLogRecord {
     pub level: String,
     pub args: String,
@@ -69,8 +72,6 @@ pub struct SerializableLogRecord {
     pub module_path: Option<String>,
     pub file: Option<String>,
     pub line: Option<u32>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing))]
-    __private: PhantomData<()>,
 }
 
 impl SerializableLogRecord {
@@ -92,7 +93,6 @@ impl SerializableLogRecord {
             module_path,
             file,
             line,
-            __private: PhantomData,
         }
     }
 
