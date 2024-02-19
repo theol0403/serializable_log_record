@@ -1,0 +1,22 @@
+[package]
+name = "serializable_log_record"
+version = "0.3.0"
+edition = "2018"
+description = "Convert a log::Record to a serializable format. This is not as straightforward as it sounds, because the log::Record contains non-serializable types. This crate provides a way to convert those types to serializable types and back."
+repository = "https://github.com/8192K/serializable_log_record"
+authors = ["Sebastian Frehmel <8192K@sebastianfrehmel.de>"]
+license = "MIT/Apache-2.0"
+categories = ["development-tools", "development-tools::debugging", "encoding"]
+keywords = ["log", "logger", "logging", "serialize", "record"]
+readme = "README.md"
+
+[dependencies]
+log = "0.4"
+serde = { version = "1.0", features = ["derive"], optional = true }
+
+[features]
+serde = ["dep:serde"]
+
+[profile.release]
+lto = true
+codegen-units = 1
