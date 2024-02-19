@@ -9,17 +9,17 @@
 //! Convert a `log::Record` to a `SerializableLogRecord` using the `::from` method:
 //!
 //! ```rust
-//! use log::{Record, Level};
+//! # use log::{Record, Level};
 //! use serializable_log_record::SerializableLogRecord;
 //!
-//! let record = Record::builder()
-//!     .args(format_args!("Hello"))
-//!     .level(Level::Info)
-//!     .target("my_target")
-//!     .file(Some("lib.rs"))
-//!     .line(Some(10))
-//!     .build();
-//!
+//! # let record = Record::builder()
+//! #     .args(format_args!("Hello"))
+//! #     .level(Level::Info)
+//! #     .target("my_target")
+//! #     .file(Some("lib.rs"))
+//! #     .line(Some(10))
+//! #     .build();
+//! //let record: log::Record = ...;
 //! let serializable_record = SerializableLogRecord::from(&record);
 //! ```
 //! `Serde`'s `Serialize` and `Deserialize` traits are implemented for `SerializableLogRecord` if the `serde` feature is enabled.
@@ -29,25 +29,22 @@
 //! the extremely restrictive lifetime of the `args` field of `log::Record`.
 //!
 //! ```rust
-//! use log::Record;
 //! # use log::Level;
 //! # use serializable_log_record::SerializableLogRecord;
-//! use serializable_log_record::into_log_record;
-//!
-//! # let record = Record::builder()
+//! #
+//! # let record = log::Record::builder()
 //! #     .args(format_args!("Hello"))
 //! #     .level(Level::Info)
 //! #     .target("my_target")
 //! #     .file(Some("lib.rs"))
 //! #     .line(Some(10))
 //! #     .build();
-//!
+//! #
 //! # let serializable_record = SerializableLogRecord::from(&record);
-//!
+//! #
 //! # let any_logger = log::logger();
-//! let mut builder = Record::builder();
-//!
-//! any_logger.log(&into_log_record!(builder, serializable_record));
+//! let mut builder = log::Record::builder();
+//! any_logger.log(&serializable_log_record::into_log_record!(builder, serializable_record));
 //! ```
 //!
 
@@ -76,28 +73,52 @@ pub struct SerializableLogRecord {
 }
 
 impl SerializableLogRecord {
+    /// Create a new `SerializableLogRecord` from the given arguments.
+    /// Use `::from` to directly convert a `log::Record` to a `SerializableLogRecord`.
+    #[allow(clippy::must_use_candidate)]
+    pub fn new(
+        level: Level,
+        args: String,
+        target: String,
+        module_path: Option<String>,
+        file: Option<String>,
+        line: Option<u32>,
+    ) -> Self {
+        Self {
+            level: level.as_str().to_owned(),
+            args,
+            target,
+            module_path,
+            file,
+            line,
+            __private: PhantomData,
+        }
+    }
+
     /// Internal macro use only.
     #[allow(clippy::must_use_candidate)]
+    #[doc(hidden)]
     pub fn string_to_level(level: &str) -> Level {
         Level::from_str(level).unwrap_or(Level::Warn)
     }
 }
 
 impl<'a> From<&Record<'a>> for SerializableLogRecord {
+    /// Convert a `log::Record` to a `SerializableLogRecord`.
     fn from(record: &Record<'a>) -> Self {
-        Self {
-            level: record.level().as_str().to_owned(),
-            args: record.args().to_string(),
-            target: record.target().to_owned(),
-            module_path: record.module_path().map(str::to_owned),
-            file: record.file().map(str::to_owned),
-            line: record.line(),
-            __private: PhantomData,
-        }
+        Self::new(
+            record.level(),
+            record.args().to_string(),
+            record.target().to_owned(),
+            record.module_path().map(str::to_owned),
+            record.file().map(str::to_owned),
+            record.line(),
+        )
     }
 }
 
 impl<'a> From<Record<'a>> for SerializableLogRecord {
+    /// Convert a `log::Record` to a `SerializableLogRecord`.
     fn from(value: Record<'a>) -> Self {
         Self::from(&value)
     }

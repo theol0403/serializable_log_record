@@ -2,7 +2,7 @@
 name = "serializable_log_record"
 version = "0.3.0"
 edition = "2018"
-description = "Convert a log::Record to a serializable format. This is not as straightforward as it sounds, because the log::Record contains non-serializable types. This crate provides a way to convert those types to serializable types and back."
+description = "Convert a log::Record to a serializable format. Not as straightforward as it sounds, because the log::Record contains a non-serializable type. This crate provides a way to deal with situation."
 repository = "https://github.com/8192K/serializable_log_record"
 authors = ["Sebastian Frehmel <8192K@sebastianfrehmel.de>"]
 license = "MIT/Apache-2.0"
