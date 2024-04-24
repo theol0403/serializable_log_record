@@ -48,9 +48,16 @@
 //! any_logger.log(&serializable_log_record::into_log_record!(builder, serializable_record));
 //! ```
 //!
+#![no_std]
 
-use std::str::FromStr;
+extern crate alloc;
 
+use alloc::{
+    borrow::ToOwned,
+    string::{String, ToString},
+};
+
+use core::str::FromStr;
 use log::{Level, Record};
 
 /// A custom representation of the `log::Record` struct which is unfortunately
